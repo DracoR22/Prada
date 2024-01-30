@@ -2,32 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+html,
+body {
+  height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+ 
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    /* Name: custom color palette
+       Author: Ilias Ism
+       URL: https://gradient.page */
+
+    /* CSS: .bg-gradient { background: var(--gradient) } */
+    --gradient: linear-gradient(to top left,#4568DC,#B06AB3);
+
+    --background: 240 44.2% 4.56%;
+    --foreground: 240 6.800000000000001% 97.85%;
+
+    --muted: 240 34% 17.099999999999998%;
+    --muted-foreground: 240 6.800000000000001% 55.7%;
+
+    --popover: 240 51.4% 7.409999999999999%;
+    --popover-foreground: 240 6.800000000000001% 97.85%;
+
+    --card: 240 51.4% 7.409999999999999%;
+    --card-foreground: 240 6.800000000000001% 97.85%;
+
+    --border: 240 34% 17.099999999999998%;
+    --input: 240 34% 17.099999999999998%;
+
+    --primary: 240 68% 57%;
+    --primary-foreground: 240 6.800000000000001% 5.699999999999999%;
+
+    --secondary: 240 34% 17.099999999999998%;
+    --secondary-foreground: 240 6.800000000000001% 97.85%;
+
+    --accent: 240 34% 17.099999999999998%;
+    --accent-foreground: 240 6.800000000000001% 97.85%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 240 6.800000000000001% 97.85%;
+
+    --ring: 240 68% 57%;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+.dotPattern {
+  background-image: radial-gradient(rgb(35, 40, 68) 1px, transparent 1px);
+  background-size: 25px 25px;
+}
+
+.use-automation-zoom-in {
+  animation: automation-zoom-in 0.5s;
+}
+
+@keyframes automation-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
