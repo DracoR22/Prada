@@ -172,7 +172,7 @@ const MenuOptions = ({ defaultOpen, subAccounts, sidebarLogo, sidebarOpt, detail
                  <nav className="relative">
                     <Command className="rounded-lg overflow-visible bg-transparent">
                        <CommandInput placeholder="Search..."/>
-                       <CommandList className="pb-16 overflow-visible">
+                       <CommandList className="py-4 overflow-visible">
                          <CommandEmpty>No results found.</CommandEmpty>
                          <CommandGroup className="overflow-visible">
                              {sidebarOpt.map((sidebarOptions) => {
@@ -186,6 +186,9 @@ const MenuOptions = ({ defaultOpen, subAccounts, sidebarLogo, sidebarOpt, detail
                                  <CommandItem key={sidebarOptions.id} className="md:w-[320px] w-full">
                                     <Link href={sidebarOptions.link} className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]">
                                         {val}
+                                        <span>
+                                          {sidebarOptions.name}
+                                        </span>
                                     </Link>
                                  </CommandItem>
                                )
