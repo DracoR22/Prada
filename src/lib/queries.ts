@@ -33,6 +33,26 @@ export const getAuthUserDetails = async () => {
   
     return userData
   }
+
+export const getNotificationAndUser = async (agencyId: string) => {
+    try {
+        const response = await db.notification.findMany({
+            where: {
+                agencyId
+            },
+            include: {
+                User: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
 //------------------------------------------------//CREATE ACTIVITY LOG//----------------------------------------------//
 export const saveActivityLogsNotification = async ({ agencyId, description, subaccountId }: { agencyId?: string, description: string, subaccountId?: string }) => {
   const authUser = await currentUser()
