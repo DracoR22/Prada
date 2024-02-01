@@ -99,7 +99,8 @@ const AgencyDetails = ({ data }: Props) => {
            },
          }
       }
-
+        
+      // CREATE A NEW USER BECAUSE WE ARE USING CLERK
       newUserData = await initUser({role: 'AGENCY_OWNER'})
 
       if (!data?.customerId) {
