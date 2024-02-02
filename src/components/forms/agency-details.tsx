@@ -106,7 +106,7 @@ const AgencyDetails = ({ data }: Props) => {
       if (!data?.customerId) {
         const response = await upsertAgency({
           id: data?.id ? data.id : v4(),
-          customerId: data?.customerId,
+          customerId: data?.customerId || '',
           address: values.address,
           agencyLogo: values.agencyLogo,
           city: values.city,
@@ -123,7 +123,7 @@ const AgencyDetails = ({ data }: Props) => {
           goal: 5,
         })
         toast({
-          title: 'Created Agency',
+          title: 'Updated Agency',
         })
         if (data?.id) return router.refresh()
         if (response) {

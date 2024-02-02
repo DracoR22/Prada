@@ -10,6 +10,7 @@ import { Role } from "@prisma/client"
 import { Card } from "../ui/card"
 import { Switch } from "../ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { ModeToggle } from "./mode-toggle"
 
 interface Props {
     notifications: NotificationWithUser | []
@@ -81,14 +82,20 @@ const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
                                     </span>
                                  </p>
                                  <small className="text-xs text-muted-foreground">
-
+                                     {new Date(notification.createdAt).toLocaleDateString()}
                                  </small>
                               </div>
                            </div>
                         </div>
                        ))}
+                       {allNotifications?.length === 0 && (
+                        <div className="flex items-center justify-center mb-4 text-muted-foreground">
+                            You have no notifications
+                        </div>
+                       )}
                     </SheetContent>
                 </Sheet>
+                <ModeToggle/>
              </div>
           </div>
         </>

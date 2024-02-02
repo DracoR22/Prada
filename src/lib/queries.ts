@@ -55,6 +55,17 @@ export const getNotificationAndUser = async (agencyId: string) => {
         console.log(error)
     }
 }
+
+//------------------------------------------------//GET USER PERMISSIONS//----------------------------------------------//
+export const getUserPermissions = async (userId: string) => {
+  const response = await db.user.findUnique({
+    where: { id: userId },
+    select: { Permissions: { include: { SubAccount: true } } },
+  })
+
+  return response
+}
+
 //------------------------------------------------//CREATE ACTIVITY LOG//----------------------------------------------//
 export const saveActivityLogsNotification = async ({ agencyId, description, subaccountId }: { agencyId?: string, description: string, subaccountId?: string }) => {
   const authUser = await currentUser()
@@ -182,6 +193,7 @@ export const initUser = async (newUser: Partial<User>) => {
     return userData
 }
 
+//------------------------------------------------//UPSERT AGENCY//----------------------------------------------//
 export const upsertAgency = async (agency: Agency, price?: Plan) => {
    if (!agency.companyEmail) return null
 
@@ -241,6 +253,7 @@ export const upsertAgency = async (agency: Agency, price?: Plan) => {
    }
 }
 
+//------------------------------------------------//UPSERT SUBACCOUNT//----------------------------------------------//
 export const upsertSubAccount = async (subAccount: SubAccount) => {
     if (!subAccount.companyEmail) return null
     const agencyOwner = await db.user.findFirst({
@@ -390,6 +403,44 @@ export const updateAgencyDetails = async (agencyId: string, agencyDetails: Parti
     })
 
     return response
+}
+
+//------------------------------------------------//UPDATE USER//----------------------------------------------//
+export const updateUser = async (user: Partial<User>) => {
+  const response = await db.user.update({
+    where: { email: user.email },
+    data: { ...user },
+  })
+
+  await clerkClient.users.updateUserMetadata(response.id, {
+    privateMetadata: {
+      role: user.role || 'SUBACCOUNT_USER',
+    },
+  })
+
+  return response
+}
+
+export const changeUserPermissions = async (permissionId: string | undefined, userEmail: string, subAccountId: string, permission: boolean) => {
+  try {
+    const response = await db.permissions.upsert({
+      where: {
+        id: permissionId
+      },
+      update: {
+        access: permission
+      },
+      create: {
+        access: permission,
+        email: userEmail,
+        subAccountId
+      }
+    })
+
+    return response
+  } catch (error) {
+    console.log('Could not change permission', error)
+  }
 }
 
 //------------------------------------------------//DELETE AGENCY//----------------------------------------------//
