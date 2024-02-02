@@ -302,8 +302,8 @@ const AgencyDetails = ({ data }: Props) => {
                                 if (!data?.id) return
                                  await updateAgencyDetails(data.id, { goal: val })
                                  await saveActivityLogsNotification({
-                                  description: `Updated the agency goal to | ${val} Sub Account`,
-                                  subaccountId: undefined
+                                  description: `Updated the agency goal to | ${val}`,
+                                  subaccountId: undefined, agencyId: data.id
                                  })
                                  router.refresh()
                                }} min={1} className="bg-background !border !border-input rounded-md" placeholder="Sub Account Goal"/>

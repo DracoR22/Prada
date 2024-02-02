@@ -3,7 +3,7 @@
 import { clerkClient, currentUser } from "@clerk/nextjs"
 import { db } from "./db"
 import { redirect } from "next/navigation"
-import { Agency, Plan, SubAccount, User } from "@prisma/client"
+import { Agency, Plan, Role, SubAccount, User } from "@prisma/client"
 import { v4 } from "uuid"
 
 //------------------------------------------------//GET USER DETAILS//----------------------------------------------//
@@ -65,6 +65,29 @@ export const getUserPermissions = async (userId: string) => {
 
   return response
 }
+
+//---------------------------------------------------//GET SUBACCOUNT//------------------------------------------------//
+export const getSubaccountDetails = async (subaccountId: string) => {
+  const response = await db.subAccount.findUnique({
+    where: {
+      id: subaccountId
+    }
+  })
+
+  return response
+}
+
+//---------------------------------------------------//GET USER BY ID//------------------------------------------------//
+export const getUser = async (id: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+  })
+
+  return user
+}
+
 
 //------------------------------------------------//CREATE ACTIVITY LOG//----------------------------------------------//
 export const saveActivityLogsNotification = async ({ agencyId, description, subaccountId }: { agencyId?: string, description: string, subaccountId?: string }) => {
@@ -334,6 +357,33 @@ export const upsertSubAccount = async (subAccount: SubAccount) => {
     return response
   }
 
+//------------------------------------------------//SEND INVITATIONS//----------------------------------------------//
+export const sendInvitation = async (role: Role, email: string, agencyId: string) => {
+  const response = await db.invitation.create({
+    data: {
+      email,
+      agencyId,
+      role
+    }
+  })
+
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      redirectUrl: process.env.NEXT_PUBLIC_URL,
+      publicMetadata: {
+        throughInvitation: true,
+        role,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+
+  return response
+}
+
 //------------------------------------------------//ACCEPT INVITATIONS//----------------------------------------------//
 export const verifyAndAcceptInvitation = async () => {
     const user = await currentUser()
@@ -421,6 +471,7 @@ export const updateUser = async (user: Partial<User>) => {
   return response
 }
 
+//------------------------------------------------//USER PERMISSIONS//----------------------------------------------//
 export const changeUserPermissions = async (permissionId: string | undefined, userEmail: string, subAccountId: string, permission: boolean) => {
   try {
     const response = await db.permissions.upsert({
@@ -452,4 +503,27 @@ export const deleteAgency = async (agencyId: string) => {
    })
 
    return response
+}
+
+//------------------------------------------------//DELETE SUBACCCOUNT//----------------------------------------------//
+export const deleteSubaccount = async (subaccountId: string) => {
+  const response = await db.subAccount.delete({
+    where: {
+      id: subaccountId
+    }
+  })
+
+  return response
+}
+
+//------------------------------------------------//DELETE USER//----------------------------------------------//
+export const deleteUser = async (userId: string) => {
+  await clerkClient.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      role: undefined,
+    },
+  })
+  const deletedUser = await db.user.delete({ where: { id: userId } })
+
+  return deletedUser
 }

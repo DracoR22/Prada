@@ -118,27 +118,27 @@ const MenuOptions = ({ defaultOpen, subAccounts, sidebarLogo, sidebarOpt, detail
                                 {!!subAccounts ? subAccounts.map((subaccount) => (
                                     <CommandItem key={subaccount.id}>
                                         {defaultOpen ? (
-                                           <Link href={`/subaccount/${subaccount?.Agency?.id}`} className="flex gap-4 w-full h-full">
+                                           <Link href={`/subaccount/${subaccount?.id}`} className="flex gap-4 w-full h-full">
                                              <div className="relative w-16">
                                                <Image src={subaccount.subAccountLogo} alt="Subaccount Logo" fill className="rounded-md object-contain"/>
                                              </div>
                                              <div className="flex flex-col flex-1">
-                                               {subaccount?.Agency?.name}
+                                               {subaccount?.name}
                                               <span className="text-muted-foreground">
-                                                 {subaccount?.Agency.address}
+                                                 {subaccount?.address}
                                               </span>
                                              </div>
                                            </Link>
                                       ) : (
                                         <SheetClose asChild>
-                                            <Link href={`/subaccount/${subaccount?.Agency?.id}`} className="flex gap-4 w-full h-full">
+                                            <Link href={`/subaccount/${subaccount?.id}`} className="flex gap-4 w-full h-full">
                                               <div className="relative w-16">
                                                <Image src={subaccount.subAccountLogo} alt="Subaccount Logo" fill className="rounded-md object-contain"/>
                                               </div>
                                               <div className="flex flex-col flex-1">
-                                                {subaccount?.Agency?.name}
+                                                {subaccount?.name}
                                               <span className="text-muted-foreground">
-                                                 {subaccount?.Agency?.address}
+                                                 {subaccount?.address}
                                               </span>
                                               </div>
                                             </Link>

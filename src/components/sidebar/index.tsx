@@ -1,5 +1,5 @@
 import { getAuthUserDetails } from "@/lib/queries"
-import { SubAccount } from "@prisma/client"
+
 import MenuOptions from "./menu-options"
 
 interface Props {
@@ -15,9 +15,9 @@ const Sidebar = async ({ id, type }: Props) => {
 
    if (!user.Agency) return
 
-   const details = type === 'agency' ? user?.Agency : user?.Agency.SubAccount.find((subaccount: SubAccount) => subaccount.id === id)
+   const details = type === 'agency' ? user?.Agency : user?.Agency.SubAccount.find((subaccount) => subaccount.id === id)
 
-   const isWhiteLabeledAgency = user.Agency.whitelabel
+   const isWhiteLabeledAgency = user.Agency.whiteLabel
 
    if (!details) return
 
@@ -25,13 +25,13 @@ const Sidebar = async ({ id, type }: Props) => {
 
     if (!isWhiteLabeledAgency) {
         if (type === 'subaccount') {
-            sideBarLogo = user?.Agency.Subaccount.find((subaccount: SubAccount) => subaccount.id === id)?.subAccountLogo || user.Agency.agencyLogo
+            sideBarLogo = user?.Agency.SubAccount.find((subaccount) => subaccount.id === id)?.subAccountLogo || user.Agency.agencyLogo
         }
     }
 
-    const sidebarOptions = type === 'agency' ? user.Agency.SidebarOption || [] : user.Agency.Subaccount.find((subaccount: SubAccount) => subaccount.id === id)?.SidebarOption || []
+    const sidebarOptions = type === 'agency' ? user.Agency.SidebarOption || [] : user.Agency.SubAccount.find((subaccount) => subaccount.id === id)?.SidebarOption || []
 
-    const subaccounts = user.Agency.SubAccount.filter((subaccount: SubAccount) => user.Permissions.find((permission: any) => permission.subAccountId === subaccount.id && permission.access))
+    const subaccounts = user.Agency.SubAccount.filter((subaccount) => user.Permissions.find((permission) => permission.subAccountId === subaccount.id && permission.access))
 
     return (
         <>
