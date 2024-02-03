@@ -636,3 +636,14 @@ export const deleteMedia = async (mediaId: string) => {
 
   return deletedMedia
 }
+
+//------------------------------------------------//DELETE PIPELINE//----------------------------------------------//
+export const deletePipeline = async (pipelineId: string) => {
+  const deletedPipeline = await db.pipeline.delete({
+    where: {
+      id: pipelineId
+    }
+  })
+
+  return deletedPipeline
+}

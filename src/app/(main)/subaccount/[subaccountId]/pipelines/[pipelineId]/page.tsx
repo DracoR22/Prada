@@ -1,5 +1,6 @@
 import PipelineInfobar from "@/components/pipelines/pipeline-infobar";
-import { Tabs, TabsList } from "@/components/ui/tabs";
+import PipelineSettings from "@/components/pipelines/pipeline-settings";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/db";
 import { getLanesWithTicketsAndTags, getPipelineDetails } from "@/lib/queries";
 import { LaneDetail } from "@/lib/types";
@@ -29,8 +30,27 @@ const PipelineIdPage = async ({ params }: Props) => {
     <Tabs defaultValue="view" className="w-full">
        <TabsList className="bg-transparent border-b-2 h-16 w-full justify-between mb-4">
           <PipelineInfobar pipelineId={params.pipelineId} subAccountId={params.subaccountId} pipelines={pipelines}/>
-          <div></div>
+          <div>
+            {/* VIEW */}
+             <TabsTrigger value="view" >
+                PipeLine View
+             </TabsTrigger>
+             {/* SETTINGS */}
+             <TabsTrigger value="settings">
+                Settings
+             </TabsTrigger>
+          </div>
        </TabsList>
+
+        {/* VIEW */}
+       <TabsContent value="view">
+          
+       </TabsContent>
+
+        {/* SETTINGS */}
+        <TabsContent value="settings">
+          <PipelineSettings pipelineId={params.pipelineId} pipelines={pipelines} subaccountId={params.subaccountId}/>
+       </TabsContent>
     </Tabs>
   )
 }
