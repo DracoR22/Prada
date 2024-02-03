@@ -21,7 +21,7 @@ interface Props {
 
 const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
 
-   const [allNotifications, setAllNotifications] = useState<NotificationWithUser | []>(notifications)
+   const [allNotifications, setAllNotifications] = useState(notifications)
    const [showAll, setShowAll] = useState<boolean>(true)
 
    const handleClick = () => {
@@ -51,7 +51,7 @@ const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
                     <SheetContent className="mt-4 mr-4 pr-4 flex flex-col">
                        <SheetHeader className="text-left">
                          <SheetTitle>Notifications</SheetTitle>
-                         <SheetDescription>
+                         <SheetDescription asChild>
                             {(role === 'AGENCY_ADMIN' || role === 'AGENCY_OWNER') && (
                                 <Card className="flex items-center justify-between p-4">
                                     Current Subaccount

@@ -3,8 +3,10 @@
 import { clerkClient, currentUser } from "@clerk/nextjs"
 import { db } from "./db"
 import { redirect } from "next/navigation"
-import { Agency, Plan, Role, SubAccount, User } from "@prisma/client"
+import { Agency, Plan, Prisma, Role, SubAccount, User } from "@prisma/client"
 import { v4 } from "uuid"
+import { CreateFunnelFormSchema, CreateMediaType } from "./types"
+import { z } from "zod"
 
 //------------------------------------------------//GET USER DETAILS//----------------------------------------------//
 export const getAuthUserDetails = async () => {
@@ -88,6 +90,56 @@ export const getUser = async (id: string) => {
   return user
 }
 
+//---------------------------------------------------//GET MEDIA//------------------------------------------------//
+export const getMedia = async (subAccountId: string) => {
+   const mediaFiles = await db.subAccount.findUnique({
+    where: {
+      id: subAccountId
+    },
+    include: {
+      Media: true
+    }
+   })
+
+   return mediaFiles
+}
+
+//---------------------------------------------------//GET PIPELINE//------------------------------------------------//
+export const getPipelineDetails = async (pipelineId: string) => {
+  const response = await db.pipeline.findUnique({
+    where: {
+      id: pipelineId
+    }
+  })
+
+  return response
+}
+
+//---------------------------------------------------//GET LANES WITH TICKETS AND TAGS//------------------------------------------------//
+export const getLanesWithTicketsAndTags = async (pipelineId: string) => {
+  const response = await db.lane.findMany({
+    where: {
+      pipelineId
+    },
+    orderBy: {
+      order: 'asc'
+    },
+    include: {
+      Tickets: {
+        orderBy: {
+          order: 'asc'
+        },
+        include: {
+          Tags: true,
+          Assigned: true,
+          Customer: true
+        }
+      }
+    }
+  })
+
+  return response
+}
 
 //------------------------------------------------//CREATE ACTIVITY LOG//----------------------------------------------//
 export const saveActivityLogsNotification = async ({ agencyId, description, subaccountId }: { agencyId?: string, description: string, subaccountId?: string }) => {
@@ -214,6 +266,19 @@ export const initUser = async (newUser: Partial<User>) => {
     })
 
     return userData
+}
+
+//------------------------------------------------//CREATE MEDIA//----------------------------------------------//
+export const createMedia = async (subaccountId: string, mediaFile: CreateMediaType) => {
+   const response = await db.media.create({
+    data: {
+      link: mediaFile.link,
+      name: mediaFile.name,
+      subAccountId: subaccountId
+    }
+   })
+
+   return response
 }
 
 //------------------------------------------------//UPSERT AGENCY//----------------------------------------------//
@@ -356,6 +421,39 @@ export const upsertSubAccount = async (subAccount: SubAccount) => {
     })
     return response
   }
+
+//------------------------------------------------//UPSERT FUNNEL//----------------------------------------------//
+export const upsertFunnel = async (
+  subaccountId: string,
+  funnel: z.infer<typeof CreateFunnelFormSchema> & { liveProducts: string },
+  funnelId: string
+) => {
+  const response = await db.funnel.upsert({
+    where: { id: funnelId },
+    update: funnel,
+    create: {
+      ...funnel,
+      id: funnelId || v4(),
+      subAccountId: subaccountId,
+    },
+  })
+
+  return response
+}
+
+//------------------------------------------------//UPSERT PIPELINE//----------------------------------------------//
+export const upsertPipeline = async (
+  pipeline: Prisma.PipelineUncheckedCreateWithoutLaneInput
+) => {
+  const response = await db.pipeline.upsert({
+    where: { id: pipeline.id || v4() },
+    update: pipeline,
+    create: pipeline,
+  })
+
+  return response
+}
+
 
 //------------------------------------------------//SEND INVITATIONS//----------------------------------------------//
 export const sendInvitation = async (role: Role, email: string, agencyId: string) => {
@@ -526,4 +624,15 @@ export const deleteUser = async (userId: string) => {
   const deletedUser = await db.user.delete({ where: { id: userId } })
 
   return deletedUser
+}
+
+//------------------------------------------------//DELETE MEDIA//----------------------------------------------//
+export const deleteMedia = async (mediaId: string) => {
+  const deletedMedia = await db.media.delete({
+    where: {
+      id: mediaId
+    }
+  })
+
+  return deletedMedia
 }
