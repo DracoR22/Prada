@@ -608,6 +608,19 @@ export const upsertTag = async (subaccountId: string, tag: Prisma.TagUncheckedCr
    return response
 }
 
+//------------------------------------------------//UPSERT CONTACT//----------------------------------------------//
+export const upsertContact = async (contact: Prisma.ContactUncheckedCreateInput) => {
+  const response = await db.contact.upsert({
+    where: {
+      id: contact.id || v4()
+    },
+    update: contact,
+    create: contact
+  })
+
+  return response
+}
+
 //------------------------------------------------//SEND INVITATIONS//----------------------------------------------//
 export const sendInvitation = async (role: Role, email: string, agencyId: string) => {
   const response = await db.invitation.create({
