@@ -25,6 +25,7 @@ interface Props {
     data?: Partial<Agency>
 }
 
+// SCHEMA VALIDATION
 const FormSchema = z.object({
   name: z.string().min(2, { message: 'Agency name must be atleast 2 chars.' }),
   companyEmail: z.string().min(1),
@@ -46,6 +47,7 @@ const AgencyDetails = ({ data }: Props) => {
 
    const [deletingAgency, setDeletingAgency] = useState<boolean>(false)
 
+   // CREATE FORM
    const form = useForm<z.infer<typeof FormSchema>>({
     mode: 'onChange',
     resolver: zodResolver(FormSchema),
@@ -71,11 +73,13 @@ const AgencyDetails = ({ data }: Props) => {
     }
    }, [data])
 
+   // CREATE OR UPDATE AGENCY
    const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
     try {
       let newUserData
-      let customerId
+      let custId
 
+      // DATA TO SEND TO STRIPE
       if (!data?.id) {
         const bodyData = {
           email: values.companyEmail,
@@ -98,15 +102,27 @@ const AgencyDetails = ({ data }: Props) => {
             state: values.zipCode,
            },
          }
+
+         // STRIPE
+         const customerResponse = await fetch('/api/stripe/create-customer', {
+           method: 'POST',
+           headers: {
+            'Content-Type': 'application/json'
+           },
+           body: JSON.stringify(bodyData)
+         })
+         const customerData: { customerId: string } = await customerResponse.json()
+         custId = customerData.customerId
       }
         
       // CREATE A NEW USER BECAUSE WE ARE USING CLERK
       newUserData = await initUser({role: 'AGENCY_OWNER'})
 
-      if (!data?.customerId) {
+      if (!data?.customerId && !custId) return
+       
         const response = await upsertAgency({
           id: data?.id ? data.id : v4(),
-          customerId: data?.customerId || '',
+          customerId: data?.customerId || custId || '',
           address: values.address,
           agencyLogo: values.agencyLogo,
           city: values.city,
@@ -122,14 +138,17 @@ const AgencyDetails = ({ data }: Props) => {
           connectAccountId: '',
           goal: 5,
         })
+        
         toast({
           title: 'Updated Agency',
         })
+
         if (data?.id) return router.refresh()
+
         if (response) {
           return router.refresh()
         }
-      }
+
     } catch (error) {
       console.log(error)
       toast({
