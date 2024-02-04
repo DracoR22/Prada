@@ -48,7 +48,7 @@ const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
                            <Bell size={17}/>
                         </div>
                     </SheetTrigger>
-                    <SheetContent className="mt-4 mr-4 pr-4 flex flex-col">
+                    <SheetContent className="mt-4 mr-4 pr-4 flex flex-col ">
                        <SheetHeader className="text-left">
                          <SheetTitle>Notifications</SheetTitle>
                          <SheetDescription asChild>
@@ -60,8 +60,9 @@ const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
                             )}
                          </SheetDescription>
                        </SheetHeader>
+                       <div className="overflow-scroll">
                        {allNotifications?.map((notification) => (
-                        <div key={notification.id} className="flex flex-col gap-y-2 mb-2 overflow-x-scroll text-ellipsis">
+                        <div key={notification.id} className="flex flex-col gap-y-2 mb-2 text-ellipsis">
                            <div className="flex gap-2">
                               <Avatar>
                                 <AvatarImage src={notification.User.avatarUrl} alt="Profile Picture"/>
@@ -88,6 +89,7 @@ const InfoBar = ({ notifications, role, className, subAccountId }: Props) => {
                            </div>
                         </div>
                        ))}
+                       </div>
                        {allNotifications?.length === 0 && (
                         <div className="flex items-center justify-center mb-4 text-muted-foreground">
                             You have no notifications

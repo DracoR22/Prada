@@ -3,7 +3,7 @@
 import { clerkClient, currentUser } from "@clerk/nextjs"
 import { db } from "./db"
 import { redirect } from "next/navigation"
-import { Agency, Plan, Prisma, Role, SubAccount, User } from "@prisma/client"
+import { Agency, Lane, Plan, Prisma, Role, SubAccount, Tag, Ticket, User } from "@prisma/client"
 import { v4 } from "uuid"
 import { CreateFunnelFormSchema, CreateMediaType } from "./types"
 import { z } from "zod"
@@ -115,6 +115,20 @@ export const getPipelineDetails = async (pipelineId: string) => {
   return response
 }
 
+//---------------------------------------------------//GET TAGS FOR SUBACCOUNT//------------------------------------------------//
+export const getTagsForSubaccount = async (subaccountId: string) => {
+  const response = await db.subAccount.findUnique({
+    where: {
+      id: subaccountId
+    },
+    select: {
+      Tags: true
+    }
+  })
+
+  return response
+}
+
 //---------------------------------------------------//GET LANES WITH TICKETS AND TAGS//------------------------------------------------//
 export const getLanesWithTicketsAndTags = async (pipelineId: string) => {
   const response = await db.lane.findMany({
@@ -138,6 +152,75 @@ export const getLanesWithTicketsAndTags = async (pipelineId: string) => {
     }
   })
 
+  return response
+}
+
+//---------------------------------------------------//GET TICKETS WITH TAGS//------------------------------------------------//
+export const getTicketsWithTags = async (pipelineId: string) => {
+   const response = await db.ticket.findMany({
+    where: {
+      Lane: {
+        pipelineId
+      } 
+    },
+    include: {
+      Tags: true,
+      Assigned: true,
+      Customer: true
+    }
+   })
+
+   return response
+}
+
+//---------------------------------------------------//GET SUBACCOUNT TEAM MEMBERS//------------------------------------------------//
+export const getSubAccountTeamMembers = async (subaccountId: string) => {
+  const subaccountUsersWithAccess = await db.user.findMany({
+    where: {
+      Agency: {
+        SubAccount: {
+          some: {
+            id: subaccountId,
+          },
+        },
+      },
+      role: 'SUBACCOUNT_USER',
+      Permissions: {
+        some: {
+          subAccountId: subaccountId,
+          access: true,
+        },
+      },
+    },
+  })
+
+  return subaccountUsersWithAccess
+}
+
+//---------------------------------------------------//SEARCH CONTACTS//------------------------------------------------//
+export const searchContacts = async (searchTerms: string) => {
+  const response = await db.contact.findMany({
+    where: {
+      name: {
+        contains: searchTerms,
+      },
+    },
+  })
+  return response
+}
+
+
+//---------------------------------------------------//GET TICKETS WITH ALL RELATIONS//------------------------------------------------//
+export const _getTicketsWithAllRelations = async (laneId: string) => {
+  const response = await db.ticket.findMany({
+    where: { laneId: laneId },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Lane: true,
+      Tags: true,
+    },
+  })
   return response
 }
 
@@ -454,6 +537,76 @@ export const upsertPipeline = async (
   return response
 }
 
+//------------------------------------------------//UPSERT LANE//----------------------------------------------//
+export const upsertLane = async (lane: Prisma.LaneUncheckedCreateInput) => {
+  let order: number
+
+  if (!lane.order) {
+    const lanes = await db.lane.findMany({
+      where: {
+        pipelineId: lane.pipelineId,
+      },
+    })
+
+    order = lanes.length
+  } else {
+    order = lane.order
+  }
+
+  const response = await db.lane.upsert({
+    where: { id: lane.id || v4() },
+    update: lane,
+    create: { ...lane, order },
+  })
+
+  return response
+}
+
+//------------------------------------------------//UPSERT TICKET//----------------------------------------------//
+export const upsertTicket = async (ticket: Prisma.TicketUncheckedCreateInput, tags: Tag[]) => {
+  let order: number
+  if (!ticket.order) {
+    const tickets = await db.ticket.findMany({
+      where: { laneId: ticket.laneId },
+    })
+    order = tickets.length
+  } else {
+    order = ticket.order
+  }
+
+  const response = await db.ticket.upsert({
+    where: {
+      id: ticket.id || v4(),
+    },
+    update: { ...ticket, Tags: { set: tags } },
+    create: { ...ticket, Tags: { connect: tags }, order },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Tags: true,
+      Lane: true,
+    },
+  })
+
+  return response
+}
+
+//------------------------------------------------//UPSERT TAG//----------------------------------------------//
+export const upsertTag = async (subaccountId: string, tag: Prisma.TagUncheckedCreateInput) => {
+   const response = await db.tag.upsert({
+    where: {
+      id: tag.id || v4(),
+      subAccountId: subaccountId
+    },
+    update: tag,
+    create: {
+      ...tag,
+      subAccountId: subaccountId
+    }
+   })
+
+   return response
+}
 
 //------------------------------------------------//SEND INVITATIONS//----------------------------------------------//
 export const sendInvitation = async (role: Role, email: string, agencyId: string) => {
@@ -591,6 +744,47 @@ export const changeUserPermissions = async (permissionId: string | undefined, us
     console.log('Could not change permission', error)
   }
 }
+//------------------------------------------------//UPDATE LANES ORDER//----------------------------------------------//
+export const updateLanesOrder = async (lanes: Lane[]) => {
+  try {
+    const updateTrans = lanes.map((lane) => (
+       db.lane.update({
+        where: {
+          id: lane.id
+        },
+        data: {
+          order: lane.order
+        }
+       })
+    ))
+
+    await db.$transaction(updateTrans)
+    console.log('Lane reordered')
+  } catch (error) {
+    console.log(error, 'Error reordering Lane')
+  }
+}
+
+//------------------------------------------------//UPDATE TICKETS ORDER//----------------------------------------------//
+export const updateTicketsOrder = async (tickets: Ticket[]) => {
+  try {
+    const updateTrans = tickets.map((ticket) => db.ticket.update({
+        where: {
+          id: ticket.id,
+        },
+        data: {
+          order: ticket.order,
+          laneId: ticket.laneId,
+        },
+      })
+    )
+
+    await db.$transaction(updateTrans)
+    console.log('🟢 Done reordered 🟢')
+  } catch (error) {
+    console.log(error, '🔴 ERROR UPDATE TICKET ORDER')
+  }
+}
 
 //------------------------------------------------//DELETE AGENCY//----------------------------------------------//
 export const deleteAgency = async (agencyId: string) => {
@@ -646,4 +840,37 @@ export const deletePipeline = async (pipelineId: string) => {
   })
 
   return deletedPipeline
+}
+
+//------------------------------------------------//DELETE LANE//----------------------------------------------//
+export const deleteLane = async (laneId: string) => {
+  const response = await db.lane.delete({
+    where: {
+      id: laneId
+    }
+  })
+
+  return response
+}
+
+//------------------------------------------------//DELETE TICKET//----------------------------------------------//
+export const deleteTicket = async (ticketId: string) => {
+  const response = await db.ticket.delete({
+    where: {
+      id: ticketId
+    }
+  })
+
+  return response
+}
+
+//------------------------------------------------//DELETE TAG//----------------------------------------------//
+export const deleteTag = async (tagId: string) => {
+  const response = await db.tag.delete({
+    where: {
+      id: tagId
+    }
+  })
+
+  return response
 }
