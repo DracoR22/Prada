@@ -211,6 +211,7 @@ export const icons = [
   },
 ]
 
+// EDITOR PROPERTIES
 export type EditorBtns =
   | 'text'
   | 'container'
