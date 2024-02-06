@@ -14,7 +14,7 @@ export type EditorElement = {
    styles: React.CSSProperties
    name: string
    type: EditorBtns
-   content: EditorElement[] | {} 
+   content: EditorElement[] | { href?: string, innerText?: string, src?: string } 
 }
 
 // EDITOR TYPE
@@ -386,15 +386,7 @@ type EditorProps = {
     const [state, dispatch] = useReducer(editorReducer, initialState)
   
     return (
-      <EditorContext.Provider
-        value={{
-          state,
-          dispatch,
-          subaccountId: props.subaccountId,
-          funnelId: props.funnelId,
-          pageDetails: props.pageDetails,
-        }}
-      >
+      <EditorContext.Provider value={{ state, dispatch, subaccountId: props.subaccountId, funnelId: props.funnelId, pageDetails: props.pageDetails }}>
         {props.children}
       </EditorContext.Provider>
     )
