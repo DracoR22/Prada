@@ -66,7 +66,7 @@ const FunnelEditor = ({ funnelPageId, liveMode }: Props) => {
                    <EyeOff/>
                 </Button>
             )}
-            {/* RETURN RECURSIVE COMPONENT */}
+            {/* RETURN MAIN RECURSIVE COMPONENT */}
             {Array.isArray(state.editor.elements) && state.editor.elements.map((childElement) => (
                 <RecursiveComponent key={childElement.id} element={childElement}/>
             ))}

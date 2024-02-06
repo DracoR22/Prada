@@ -55,7 +55,7 @@ const TextComponent = ({ element }: Props) => {
             </span>
             {/* CLICK TO DELETE THE ELEMENT */}
             {state.editor.selectedElement.id === element.id && !state.editor.liveMode && (
-                <div className='absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none'>
+                <div className='absolute text-white bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none'>
                    <Trash className='cursor-pointer' size={16} onClick={handleDeleteElement}/>
                 </div>
             )}
