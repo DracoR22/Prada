@@ -3,6 +3,8 @@ import { EditorBtns } from "@/lib/constants"
 import TextPlaceholder from "./text-placeholder"
 import ContainerPlaceholder from "./container-placeholder"
 import VideoPlaceholder from "./video-placeholder"
+import TwoColumnsPlaceholder from "./two-columns-placeholder"
+import LinkPlaceholder from "./link-placeholder"
 
 interface Props {
     
@@ -30,9 +32,21 @@ const ComponentsTab = (props: Props) => {
         group: 'layout',
     },
     {
+        Component: <TwoColumnsPlaceholder/>,
+        label: '2 Columns',
+        id: '2Col',
+        group: 'layout',
+    },
+    {
         Component: <VideoPlaceholder/>,
         label: 'Video',
         id: 'video',
+        group: 'elements',
+    },
+    {
+        Component: <LinkPlaceholder/>,
+        label: 'Link',
+        id: 'link',
         group: 'elements',
     },
    ]
