@@ -233,14 +233,14 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
                     type: null,
                   },
                 },
-                history: {
-                  ...state.history,
-                  history: [
-                    ...state.history.history.slice(0, state.history.currentIndex + 1),
-                    { ...state.editor }, // Save a copy of the current editor state
-                  ],
-                  currentIndex: state.history.currentIndex + 1,
-                },
+                // history: {
+                //   ...state.history,
+                //   history: [
+                //     ...state.history.history.slice(0, state.history.currentIndex + 1),
+                //     { ...state.editor }, // Save a copy of the current editor state
+                //   ],
+                //   currentIndex: state.history.currentIndex + 1,
+                // },
               }
 
               return clickedState
@@ -380,6 +380,7 @@ type EditorProps = {
     subaccountId: string
     funnelId: string
     pageDetails: FunnelPage
+
   }
 
   const EditorProvider = (props: EditorProps) => {

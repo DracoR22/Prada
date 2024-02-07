@@ -110,7 +110,7 @@ const Container = ({ element }: Props) => {
                   content: [],
                   id: v4(),
                   name: 'Contact Form',
-                  styles: {},
+                  styles: state.editor.selectedElement.styles  ? state.editor.selectedElement.styles : {},
                   type: 'contactForm',
                 },
               },
@@ -124,8 +124,8 @@ const Container = ({ element }: Props) => {
                 elementDetails: {
                   content: [],
                   id: v4(),
-                  name: 'Contact Form',
-                  styles: {},
+                  name: 'Payment Form',
+                  styles: state.editor.selectedElement.styles ? state.editor.selectedElement.styles : {},
                   type: 'paymentForm',
                 },
               },
@@ -167,16 +167,18 @@ const Container = ({ element }: Props) => {
       }
     
       const handleDragOver = (e: React.DragEvent) => {
+        if (state.editor.liveMode === true) return
         e.preventDefault()
       }
 
+      // DRAG AND DROP ELEMENT INSIDE EDITOR
       const handleDragStart = (e: React.DragEvent, type: string) => {
          if (type === '__body') return
           
          e.dataTransfer.setData('componentType', type)
       }
 
-    // SELECT CLICKED ELEMENT
+      // SELECT CLICKED ELEMENT
       const handleOnClickBody = (e: React.MouseEvent) => {
         e.stopPropagation()
         
@@ -190,11 +192,54 @@ const Container = ({ element }: Props) => {
       }
     
     return (
-        <div style={styles} className={clsx('relative p-4 transition-all group', {
+      <>
+      {/* REMOVED DRAGGABLE AND ALL DRAG AND DROP ATTRIBUTES IF THE PAGE IS IN LIVE MODE */}
+        {state.editor.liveMode ? (
+            <div style={styles} className={clsx('relative p-4 transition-all group', {
+              'max-w-full w-full': type === 'container' || type === '2Col',
+              'h-fit': type === 'container',
+              'h-full': type === '__body',
+              'overflow-scroll': type === '__body',
+              'pb-[250px]': type === '__body' && !state.editor.liveMode && !state.editor.previewMode,
+              'flex flex-col md:!flex-row': type === '2Col',
+              '!border-blue-500':
+                state.editor.selectedElement.id === id &&
+                !state.editor.liveMode &&
+                state.editor.selectedElement.type !== '__body',
+              '!border-yellow-400 !border-4':
+                state.editor.selectedElement.id === id &&
+                !state.editor.liveMode &&
+                state.editor.selectedElement.type === '__body',
+              '!border-solid': state.editor.selectedElement.id === id && !state.editor.liveMode,
+              'border-dashed border-[1px] border-slate-300': !state.editor.liveMode,
+            })} >
+  
+              {/* BADGE WITH THE NAME OF THE SELECTED ELEMENT */}
+              <Badge className={clsx('absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden', {
+                 block: state.editor.selectedElement.id === element.id && !state.editor.liveMode })}>
+                  {element.name}
+              </Badge>
+  
+             {/* CALL THE RECURSIVE COMPONENT IN CASE WE HAVE A NESTED CONTAINER */}
+              {Array.isArray(content) && content.map((childElement) => (
+                  <RecursiveComponent key={childElement.id} element={childElement}/>
+              ))}
+  
+             {/* CLICK TO DELETE THE ELEMENT */}
+             {state.editor.selectedElement.id === element.id && !state.editor.liveMode && state.editor.selectedElement.type !== '__body' && (
+             <div className="text-white absolute bg-primary px-2.5 py-1 text-xs font-bold  -top-[25px] -right-[1px] rounded-none rounded-t-lg ">
+                <Trash size={16} onClick={handleDeleteElement}/>
+             </div>
+          )}
+  
+          </div>
+        ) : (
+          <div style={styles} className={clsx('relative p-4 transition-all group', {
             'max-w-full w-full': type === 'container' || type === '2Col',
             'h-fit': type === 'container',
             'h-full': type === '__body',
             'overflow-scroll': type === '__body',
+            'pb-[250px]': type === '__body' && !state.editor.liveMode && !state.editor.previewMode,
             'flex flex-col md:!flex-row': type === '2Col',
             '!border-blue-500':
               state.editor.selectedElement.id === id &&
@@ -228,6 +273,8 @@ const Container = ({ element }: Props) => {
         )}
 
         </div>
+        )}
+      </>
     )
 }
 

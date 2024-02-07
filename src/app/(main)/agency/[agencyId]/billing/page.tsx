@@ -6,6 +6,7 @@ import PricingCard from "./_components/pricing-card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import clsx from "clsx"
 import { getSubscription } from "@/lib/stripe/get-subscription"
+import SubscriptionHelper from "./_components/subscription-helper"
 
 interface Props {
   params: { agencyId: string }
@@ -44,6 +45,7 @@ const BillingPage = async ({ params }: Props) => {
 
   return (
     <>
+      <SubscriptionHelper prices={prices.data} customerId={agencySubscription?.customerId || ''} planExists={agencySubscription?.Subscription?.active === true}/>
       <h1 className="text-4xl p-4">Billing</h1>
       <Separator className="mb-6"/>
       <h2 className="text-2xl p-4">Current Plan</h2>
@@ -53,7 +55,7 @@ const BillingPage = async ({ params }: Props) => {
          <PricingCard planExists={agencySubscription?.Subscription?.active === true} prices={prices.data}
           customerId={agencySubscription?.customerId || ''}
           amt={agencySubscription?.Subscription?.active === true ? currentPlanDetails?.price || '$0' : '$0'}
-          buttonCta={agencySubscription?.Subscription?.active === true ? 'Change Plan' : 'Get Stared'}
+          buttonCta={agencySubscription?.Subscription?.active === true ? 'Change Plan' : 'Get Started'}
           highlightDescription="Want to modify your plan? You can do this here. If you have further question contact support@prada-app.com"
           highlightTitle="Plan Options" 
           description={agencySubscription?.Subscription?.active === true ? currentPlanDetails?.description || 'Lets get started' : 'Lets get started! Pick a plan that works best for you.'}

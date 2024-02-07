@@ -148,6 +148,20 @@ export const getFunnel = async (funnelId: string) => {
    return funnel
 }
 
+//------------------------------------------------//GET DOMAIN CONTENT//----------------------------------------------//
+export const getDomainContent = async (subDomainName: string) => {
+  const response = await db.funnel.findUnique({
+    where: {
+      subDomainName
+    },
+    include: {
+      FunnelPages: true
+    }
+  })
+
+  return response
+}
+
 //---------------------------------------------------//GET FUNNEL PAGE BY ID//------------------------------------------------//
 export const getFunnelPageDetails = async (funnelPageId: string) => {
   const response = await db.funnelPage.findUnique({
@@ -266,6 +280,19 @@ export const getFunnels = async (subaccountId: string) => {
   })
 
   return funnels
+}
+
+//---------------------------------------------------//GET PIPELINES//------------------------------------------------//
+export const getPipelines = async (subaccountId: string) => {
+  const response = await db.pipeline.findMany({
+    where: { subAccountId: subaccountId },
+    include: {
+      Lane: {
+        include: { Tickets: true },
+      },
+    },
+  })
+  return response
 }
 
 //------------------------------------------------//CREATE ACTIVITY LOG//----------------------------------------------//
@@ -975,3 +1002,6 @@ export const deleteFunnelPage = async (funnelPageId: string) => {
 
   return response
 }
+
+
+

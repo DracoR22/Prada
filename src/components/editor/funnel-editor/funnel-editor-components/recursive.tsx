@@ -3,6 +3,8 @@ import TextComponent from "./text"
 import Container from "./container"
 import VideoComponent from "./video"
 import LinkComponent from "./link-component"
+import ContactFormComponent from "./contact-form-component"
+import Checkout from "./checkout"
 
 interface Props {
     element: EditorElement
@@ -14,8 +16,11 @@ const RecursiveComponent = ({ element }: Props) => {
         case '__body': return <Container element={element}/>
         case 'container': return <Container element={element}/>
         case 'video': return <VideoComponent element={element}/>
-        case '2Col': return <Container element={element} />
-        case 'link': return <LinkComponent element={element} />
+        case '2Col': return <Container element={element}/>
+        case 'link': return <LinkComponent element={element}/>
+        case 'contactForm': return <ContactFormComponent element={element}/>
+        case 'paymentForm': return <Checkout element={element}/>
+
         default: null
     }
 }
