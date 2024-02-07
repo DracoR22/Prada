@@ -92,7 +92,7 @@ const Container = ({ element }: Props) => {
                 containerId: id,
                 elementDetails: {
                    // CLONED CONTENT CHILDREN DISABLED DUE TO A BUG
-                  content:  [],  // state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :
+                  content: state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :  [],  // state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :
                   id: v4(),
                   name: 'Container',
                   styles:  { ...defaultStyles },
@@ -140,14 +140,14 @@ const Container = ({ element }: Props) => {
                    // CLONED CONTENT CHILDREN DISABLED DUE TO A BUG
                   content: [
                     {
-                      content: [], //state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :
+                      content: state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :  [], //state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :
                       id: v4(),
                       name: 'Container',
                       styles: { ...defaultStyles, width: '100%' },
                       type: 'container',
                     },
                     {
-                      content: [], // state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content : 
+                      content: state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content :  [], // state.editor.selectedElement.content && state.editor.selectedElement.type !== '__body'  ? state.editor.selectedElement.content : 
                       id: v4(),
                       name: 'Container',
                       styles: { ...defaultStyles, width: '100%' },
